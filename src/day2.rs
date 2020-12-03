@@ -1,5 +1,7 @@
 use std::convert::TryFrom;
 
+use crate::maybe_from::MaybeFrom;
+
 #[derive(Debug)]
 struct Entry {
     letter: char,
@@ -28,12 +30,12 @@ impl TryFrom<&str> for Entry {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let (rule, password) = value.split_once(": ").ok_or(())?;
-        let (nums, char) = value.split_once(" ").ok_or(())?;
+        let (nums, letter) = value.split_once(" ").ok_or(())?;
         let (low, high) = nums.split_once("-").ok_or(())?;
         let low: usize = low.parse().map_err(|_| ())?;
         let high: usize = high.parse().map_err(|_| ())?;
         Ok(Entry {
-            letter: char.chars().next().ok_or(())?,
+            letter: letter.chars().next().ok_or(())?,
             low,
             high,
             password: password.to_owned(),
@@ -55,7 +57,7 @@ fn count_valid_entries_toboggan(entries: &[Entry]) -> usize {
 fn get_entries(input: &str) -> Vec<Entry> {
     input
         .lines()
-        .flat_map(|line| Entry::try_from(line).ok())
+        .flat_map(|line| Entry::maybe_from(line))
         .collect()
 }
 
