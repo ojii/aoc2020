@@ -1,5 +1,4 @@
 use crate::maybe_from::MaybeFrom;
-use std::convert::TryFrom;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::ops::{Add, AddAssign};
 
@@ -18,16 +17,12 @@ impl Square {
     }
 }
 
-// impl Eq for Square {}
-
-impl TryFrom<char> for Square {
-    type Error = ();
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
+impl MaybeFrom<char> for Square {
+    fn maybe_from(value: char) -> Option<Self> {
         match value {
-            '.' => Ok(Square::Open),
-            '#' => Ok(Square::Tree),
-            _ => Err(()),
+            '.' => Some(Square::Open),
+            '#' => Some(Square::Tree),
+            _ => None,
         }
     }
 }

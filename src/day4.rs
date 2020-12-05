@@ -2,7 +2,6 @@ use crate::day4::ValidatedData::Valid;
 use crate::maybe_from::MaybeFrom;
 use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
-use std::convert::TryFrom;
 use std::fmt::Debug;
 use std::iter::FromIterator;
 
@@ -37,19 +36,17 @@ enum EyeColor {
     Other,
 }
 
-impl TryFrom<&str> for EyeColor {
-    type Error = ();
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl MaybeFrom<&str> for EyeColor {
+    fn maybe_from(value: &str) -> Option<Self> {
         match value {
-            "amb" => Ok(EyeColor::Amber),
-            "blu" => Ok(EyeColor::Blue),
-            "brn" => Ok(EyeColor::Brown),
-            "gry" => Ok(EyeColor::Gray),
-            "grn" => Ok(EyeColor::Green),
-            "hzl" => Ok(EyeColor::Hazel),
-            "oth" => Ok(EyeColor::Other),
-            _ => Err(()),
+            "amb" => Some(EyeColor::Amber),
+            "blu" => Some(EyeColor::Blue),
+            "brn" => Some(EyeColor::Brown),
+            "gry" => Some(EyeColor::Gray),
+            "grn" => Some(EyeColor::Green),
+            "hzl" => Some(EyeColor::Hazel),
+            "oth" => Some(EyeColor::Other),
+            _ => None,
         }
     }
 }
@@ -222,17 +219,15 @@ impl Passport {
     }
 }
 
-impl TryFrom<&str> for Passport {
-    type Error = ();
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl MaybeFrom<&str> for Passport {
+    fn maybe_from(value: &str) -> Option<Self> {
         let mut fields: HashMap<&str, &str> = HashMap::new();
         for part in value.split_whitespace() {
-            let (key, value) = part.split_once(":").ok_or(())?;
+            let (key, value) = part.split_once(":")?;
             fields.insert(key, value);
         }
         if REQUIRED_FIELDS.is_subset(&HashSet::from_iter(fields.keys().map(|k| k.clone()))) {
-            Ok(Passport {
+            Some(Passport {
                 ecl: ValidatedData::ecl(fields.get("ecl").unwrap()),
                 pid: ValidatedData::pid(fields.get("pid").unwrap()),
                 eyr: ValidatedData::eyr(fields.get("eyr").unwrap()),
@@ -243,7 +238,7 @@ impl TryFrom<&str> for Passport {
                 hgt: ValidatedData::hgt(fields.get("hgt").unwrap()),
             })
         } else {
-            Err(())
+            None
         }
     }
 }

@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use crate::maybe_from::MaybeFrom;
 
 #[derive(Debug)]
@@ -25,17 +23,15 @@ impl Entry {
     }
 }
 
-impl TryFrom<&str> for Entry {
-    type Error = ();
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let (rule, password) = value.split_once(": ").ok_or(())?;
-        let (nums, letter) = value.split_once(" ").ok_or(())?;
-        let (low, high) = nums.split_once("-").ok_or(())?;
-        let low: usize = low.parse().map_err(|_| ())?;
-        let high: usize = high.parse().map_err(|_| ())?;
-        Ok(Entry {
-            letter: letter.chars().next().ok_or(())?,
+impl MaybeFrom<&str> for Entry {
+    fn maybe_from(value: &str) -> Option<Self> {
+        let (rule, password) = value.split_once(": ")?;
+        let (nums, letter) = value.split_once(" ")?;
+        let (low, high) = nums.split_once("-")?;
+        let low: usize = low.parse().ok()?;
+        let high: usize = high.parse().ok()?;
+        Some(Entry {
+            letter: letter.chars().next()?,
             low,
             high,
             password: password.to_owned(),
