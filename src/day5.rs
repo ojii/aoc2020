@@ -71,27 +71,32 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use parameterized::parameterized;
 
-    #[test]
-    fn boarding_pass() {
-        assert_eq!(
-            BoardingPass::maybe_from("BFFFBBFRRR"),
-            Some(BoardingPass { row: 70, col: 7 })
-        );
-        assert_eq!(
-            BoardingPass::maybe_from("FFFBBBFRRR"),
-            Some(BoardingPass { row: 14, col: 7 })
-        );
-        assert_eq!(
-            BoardingPass::maybe_from("BBFFBBFRLL"),
-            Some(BoardingPass { row: 102, col: 4 })
-        );
+    #[parameterized(input = {
+        "BFFFBBFRRR",
+        "FFFBBBFRRR",
+        "BBFFBBFRLL"
+    }, result = {
+        BoardingPass { row: 70, col: 7 },
+        BoardingPass { row: 14, col: 7 },
+        BoardingPass { row: 102, col: 4 }
+    })]
+    fn boarding_pass(input: &str, result: BoardingPass) {
+        assert_eq!(BoardingPass::maybe_from(input), Some(result));
     }
 
+    #[parameterized(input = {
+        BoardingPass { row: 70, col: 7 },
+        BoardingPass { row: 14, col: 7 },
+        BoardingPass { row: 102, col: 4 }
+    }, result = {
+        567,
+        119,
+        820
+    })]
     #[test]
-    fn seat_id() {
-        assert_eq!(BoardingPass { row: 70, col: 7 }.seat_id(), 567);
-        assert_eq!(BoardingPass { row: 14, col: 7 }.seat_id(), 119);
-        assert_eq!(BoardingPass { row: 102, col: 4 }.seat_id(), 820);
+    fn seat_id(input: BoardingPass, result: usize) {
+        assert_eq!(input.seat_id(), result);
     }
 }
