@@ -7,9 +7,11 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
+mod day9;
 mod maybe_from;
 mod utils;
 
 fn main() {
-    day7::run();
+    day9::run();
 }
