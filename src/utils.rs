@@ -1,3 +1,5 @@
-pub fn str_to_ints(s: &str) -> Vec<i32> {
-    s.lines().flat_map(|l| l.parse::<i32>()).collect()
+use std::str::FromStr;
+
+pub fn str_to_ints<F: FromStr>(s: &str) -> Vec<F> {
+    s.lines().flat_map(|l| l.parse::<F>()).collect()
 }
