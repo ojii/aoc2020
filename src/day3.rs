@@ -1,4 +1,5 @@
 use crate::maybe_from::MaybeFrom;
+use crate::twod::{Point, Vector};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::ops::{Add, AddAssign};
 
@@ -53,7 +54,7 @@ struct Map {
 }
 
 impl Map {
-    fn run(&self, vector: Vector) -> Toboggan {
+    fn run(&self, vector: Vector<usize>) -> Toboggan {
         Toboggan::new(&self, vector)
     }
 }
@@ -66,68 +67,18 @@ impl From<&str> for Map {
     }
 }
 
-struct Vector {
-    x: usize,
-    y: usize,
-}
-
-impl Display for Vector {
-    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        write!(f, "Right: {}, Down: {}", self.x, self.y)
-    }
-}
-
-impl From<(usize, usize)> for Vector {
-    fn from(tuple: (usize, usize)) -> Self {
-        Self::from(&tuple)
-    }
-}
-
-impl From<&(usize, usize)> for Vector {
-    fn from(tuple: &(usize, usize)) -> Self {
-        Vector {
-            x: tuple.0,
-            y: tuple.1,
-        }
-    }
-}
-
-#[derive(Default)]
-struct Coordinate {
-    x: usize,
-    y: usize,
-}
-
-impl Add<&Vector> for Coordinate {
-    type Output = Self;
-
-    fn add(self, rhs: &Vector) -> Self::Output {
-        Coordinate {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-        }
-    }
-}
-
-impl AddAssign<&Vector> for Coordinate {
-    fn add_assign(&mut self, rhs: &Vector) {
-        self.x += rhs.x;
-        self.y += rhs.y;
-    }
-}
-
 struct Toboggan<'a> {
     map: &'a Map,
-    vec: Vector,
-    pos: Coordinate,
+    vec: Vector<usize>,
+    pos: Point<usize>,
 }
 
 impl<'a> Toboggan<'a> {
-    fn new(map: &'a Map, vec: Vector) -> Self {
+    fn new(map: &'a Map, vec: Vector<usize>) -> Self {
         Self {
             map,
             vec,
-            pos: Coordinate::default(),
+            pos: Point::default(),
         }
     }
 }
@@ -137,7 +88,7 @@ impl<'a> Iterator for Toboggan<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let result = self.map.rows.get(self.pos.y).map(|row| row.get(self.pos.x));
-        self.pos += &self.vec;
+        self.pos += self.vec;
         result
     }
 }

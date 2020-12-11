@@ -1,7 +1,8 @@
-#![feature(str_split_once)]
+#![feature(str_split_once, step_trait)]
 #![allow(unused)]
 mod day1;
 mod day10;
+mod day11;
 mod day2;
 mod day3;
 mod day4;
@@ -11,8 +12,10 @@ mod day7;
 mod day8;
 mod day9;
 mod maybe_from;
+mod render;
+mod twod;
 mod utils;
 
 fn main() {
-    day10::run();
+    day11::run();
 }
