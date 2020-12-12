@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::iter::{FlatMap, Step};
-use std::ops::{Add, AddAssign, Mul};
+use std::ops::{Add, AddAssign, Mul, Sub};
 
 use itertools::Itertools;
-use num::{CheckedAdd, CheckedSub, One};
+use num::{abs, CheckedAdd, CheckedSub, One, Signed};
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Default, Ord, PartialOrd)]
 pub struct Point<T> {
@@ -16,6 +16,15 @@ pub struct Point<T> {
 impl<T> Point<T> {
     pub fn new(x: T, y: T) -> Self {
         Self { x, y }
+    }
+}
+
+impl<T> Point<T>
+where
+    T: Signed + Mul<Output = T> + Add<Output = T> + Ord + Copy,
+{
+    pub fn manhattan_distance(&self, other: &Point<T>) -> T {
+        distance(self.x, other.x) + distance(self.y, other.y)
     }
 }
 
@@ -173,5 +182,13 @@ impl<T: Clone> From<&(T, T)> for Vector<T> {
             x: value.0.clone(),
             y: value.1.clone(),
         }
+    }
+}
+
+fn distance<T: Signed + Ord + Copy + Sub<Output = T>>(a: T, b: T) -> T {
+    if a > b {
+        a - b
+    } else {
+        b - a
     }
 }

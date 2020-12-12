@@ -12,3 +12,13 @@ where
         Self::try_from(value).ok()
     }
 }
+
+pub trait MaybeInto<T>: Sized {
+    fn maybe_into(self) -> Option<T>;
+}
+
+impl<T: MaybeFrom<U>, U: Sized> MaybeInto<T> for U {
+    fn maybe_into(self) -> Option<T> {
+        T::maybe_from(self)
+    }
+}
