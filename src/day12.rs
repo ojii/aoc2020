@@ -3,7 +3,7 @@ use crate::twod::{Point, Vector};
 use itertools::Itertools;
 use num::Integer;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum Instruction {
     North(i32),
     South(i32),
@@ -92,23 +92,47 @@ impl Default for Direction {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 struct Ship {
     position: Point<i32>,
     facing: Direction,
+    waypoint: Vector<i32>,
 }
 
 impl Ship {
-    fn execute(&mut self, instruction: Instruction) {
+    fn execute(&mut self, instruction: &Instruction) {
         use Instruction::*;
         match instruction {
-            North(num) => self.position += Vector::new(0, num),
-            South(num) => self.position += Vector::new(0, -num),
-            East(num) => self.position += Vector::new(num, 0),
-            West(num) => self.position += Vector::new(-num, 0),
-            Left(num) => self.facing = self.facing.left(num),
-            Right(num) => self.facing = self.facing.right(num),
-            Forward(num) => self.position += self.facing.vector(num),
+            North(num) => self.position += Vector::new(0, *num),
+            South(num) => self.position += Vector::new(0, -*num),
+            East(num) => self.position += Vector::new(*num, 0),
+            West(num) => self.position += Vector::new(-*num, 0),
+            Left(num) => self.facing = self.facing.left(*num),
+            Right(num) => self.facing = self.facing.right(*num),
+            Forward(num) => self.position += self.facing.vector(*num),
+        }
+    }
+
+    fn execute_waypoint(&mut self, instruction: &Instruction) {
+        use Instruction::*;
+        match instruction {
+            North(num) => self.waypoint += Vector::new(0, *num),
+            South(num) => self.waypoint += Vector::new(0, -*num),
+            East(num) => self.waypoint += Vector::new(*num, 0),
+            West(num) => self.waypoint += Vector::new(-*num, 0),
+            Left(num) => self.waypoint = self.waypoint.rotate(-*num).expect("invalid turn"),
+            Right(num) => self.waypoint = self.waypoint.rotate(*num).expect("invalid turn"),
+            Forward(num) => self.position += self.waypoint * *num,
+        }
+    }
+}
+
+impl Default for Ship {
+    fn default() -> Self {
+        Self {
+            position: Point::default(),
+            facing: Direction::default(),
+            waypoint: Vector::new(10, 1),
         }
     }
 }
@@ -119,8 +143,13 @@ pub fn run() {
         .flat_map(|line| Instruction::maybe_from(line))
         .collect_vec();
     let mut ship = Ship::default();
-    for instruction in instructions {
+    for instruction in &instructions {
         ship.execute(instruction);
     }
-    println!("{}", ship.position.manhattan_distance(&Point::default()))
+    println!("{}", ship.position.manhattan_distance(&Point::default()));
+    let mut ship = Ship::default();
+    for instruction in &instructions {
+        ship.execute_waypoint(instruction);
+    }
+    println!("{}", ship.position.manhattan_distance(&Point::default()));
 }

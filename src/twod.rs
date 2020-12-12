@@ -2,10 +2,10 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 use std::hash::Hash;
 use std::iter::{FlatMap, Step};
-use std::ops::{Add, AddAssign, Mul, Sub};
+use std::ops::{Add, AddAssign, Mul, Neg, Rem, Sub};
 
 use itertools::Itertools;
-use num::{abs, CheckedAdd, CheckedSub, One, Signed};
+use num::{abs, cast, CheckedAdd, CheckedSub, Integer, NumCast, One, Signed, Zero};
 
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq, Default, Ord, PartialOrd)]
 pub struct Point<T> {
@@ -49,7 +49,11 @@ impl<T: Add<Output = T>> Add<Vector<T>> for Point<T> {
         }
     }
 }
-impl<T: AddAssign<T>> AddAssign<Vector<T>> for Point<T> {
+
+impl<T> AddAssign<Vector<T>> for Point<T>
+where
+    T: AddAssign<T> + Copy,
+{
     fn add_assign(&mut self, other: Vector<T>) {
         self.x += other.x;
         self.y += other.y;
@@ -159,6 +163,26 @@ impl<T> Vector<T> {
     }
 }
 
+impl<T> Vector<T>
+where
+    T: Integer + Copy + Neg<Output = T> + Zero + NumCast,
+{
+    pub fn rotate(&self, degrees: T) -> Option<Vector<T>> {
+        let zero: T = Zero::zero();
+        let ninety: T = cast(90)?;
+        let one_eighty: T = cast(180)?;
+        let two_seventy: T = cast(270)?;
+        let three_sixty: T = cast(360)?;
+        match rem_euclid(degrees, three_sixty) {
+            n if n == zero => Some(Vector::new(self.x, self.y)),
+            n if n == ninety => Some(Vector::new(self.y, -self.x)),
+            n if n == one_eighty => Some(Vector::new(-self.x, -self.y)),
+            n if n == two_seventy => Some(Vector::new(-self.y, self.x)),
+            _ => None,
+        }
+    }
+}
+
 impl<T> Mul<T> for Vector<T>
 where
     T: Mul<Output = T> + Copy,
@@ -167,6 +191,27 @@ where
 
     fn mul(self, rhs: T) -> Self::Output {
         Vector::new(self.x * rhs, self.y * rhs)
+    }
+}
+
+impl<T> Add<Vector<T>> for Vector<T>
+where
+    T: Add<Output = T> + Copy,
+{
+    type Output = Vector<T>;
+
+    fn add(self, rhs: Vector<T>) -> Self::Output {
+        Vector::new(self.x + rhs.x, self.y + rhs.y)
+    }
+}
+
+impl<T> AddAssign<Vector<T>> for Vector<T>
+where
+    T: AddAssign<T> + Copy,
+{
+    fn add_assign(&mut self, other: Vector<T>) {
+        self.x += other.x;
+        self.y += other.y;
     }
 }
 
@@ -190,5 +235,51 @@ fn distance<T: Signed + Ord + Copy + Sub<Output = T>>(a: T, b: T) -> T {
         a - b
     } else {
         b - a
+    }
+}
+
+fn rem_euclid<T>(lhs: T, rhs: T) -> T
+where
+    T: Integer + Copy + Zero,
+{
+    let r = lhs % rhs;
+    if r < Zero::zero() {
+        if rhs < Zero::zero() {
+            r - rhs
+        } else {
+            r + rhs
+        }
+    } else {
+        r
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use parameterized::parameterized;
+
+    #[parameterized(cases = {
+        (-90, Some(Vector::new(-4, 10))),
+        (0, Some(Vector::new(10, 4))),
+        (90, Some(Vector::new(4, -10))),
+        (180, Some(Vector::new(-10, -4))),
+        (270, Some(Vector::new(-4, 10))),
+        (360, Some(Vector::new(10, 4))),
+        (450, Some(Vector::new(4, -10))),
+        (123, None),
+    })]
+    fn rotate(cases: (i32, Option<Vector<i32>>)) {
+        let base = Vector::new(10, 4);
+        assert_eq!(
+            base.rotate(cases.0),
+            cases.1,
+            "rotate {:?} by {} ({}) to get {:?}, got {:?} instead",
+            base,
+            cases.0,
+            rem_euclid(cases.0, 360),
+            cases.1,
+            base.rotate(cases.0)
+        );
     }
 }
