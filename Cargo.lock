@@ -4,6 +4,7 @@
 name = "aoc2020"
 version = "0.1.0"
 dependencies = [
+ "intbits",
  "itertools",
  "lazy_static",
  "num",
@@ -21,6 +22,12 @@ name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e78d4f1cc4ae33bbfc157ed5d5a5ef3bc29227303d595861deb238fcec4e9457"
+
+[[package]]
+name = "intbits"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5170c2c8ecda29c1bccb9d95ccbe107bc75fa084dc0c9c6087e719f9d46330e5"
 
 [[package]]
 name = "itertools"
@@ -160,9 +167,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.53"
+version = "1.0.54"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8833e20724c24de12bbaba5ad230ea61c3eafb05b881c7c9d3cfe8638b187e68"
+checksum = "9a2af957a63d6bd42255c359c93d9bfdb97076bd3b820897ce55ffbfbf107f44"
 dependencies = [
  "proc-macro2",
  "quote",
