@@ -109,28 +109,28 @@ impl Notes {
             .sum()
     }
 
-    fn valid_tickets(&self) -> Vec<Ticket> {
-        let rules = self.rules();
-        self.nearby_tickets
-            .iter()
-            .chain(&[&self.your_ticket])
-            .filter(|ticket| ticket.error_rate(&rules) == 0)
-            .cloned()
-            .collect()
-    }
-
-    fn decode_fields_on_your_ticket(&self) -> HashMap<String, usize> {
-        // let candidates = HashSet::from_iter(self.fields.iter().map(|field| field.name));
-        // let mut columns = vec![candidates; candidates.len()];
-        // for ticket in &self.valid_tickets() {
-        //     for (num, column) in ticket.numbers.iter().zip(columns.iter_mut()) {
-        //
-        //     }
-        // }
-        HashMap::new()
-        // let candidates = (0..self.fields.len()).map(|_|)
-        // Fieild
-    }
+    // fn valid_tickets(&self) -> Vec<Ticket> {
+    //     let rules = self.rules();
+    //     self.nearby_tickets
+    //         .iter()
+    //         .chain(&[&self.your_ticket])
+    //         .filter(|ticket| ticket.error_rate(&rules) == 0)
+    //         .cloned()
+    //         .collect()
+    // }
+    //
+    // fn decode_fields_on_your_ticket(&self) -> HashMap<String, usize> {
+    //     // let candidates = HashSet::from_iter(self.fields.iter().map(|field| field.name));
+    //     // let mut columns = vec![candidates; candidates.len()];
+    //     // for ticket in &self.valid_tickets() {
+    //     //     for (num, column) in ticket.numbers.iter().zip(columns.iter_mut()) {
+    //     //
+    //     //     }
+    //     // }
+    //     HashMap::new()
+    //     // let candidates = (0..self.fields.len()).map(|_|)
+    //     // Fieild
+    // }
 }
 
 fn parse(input: &str) -> Option<Notes> {
